@@ -10,31 +10,32 @@ box::use(
 #' @export
 get_season <- function(...) {
     resp <- safe_request(pvp_season_request(...))
-    try_pluck(
+    safely_reduce(
         resp,
         "current_season",
-        "id"
+        "id",
+        1
     )
 }
 
 #' @export
 get_leaderboard <- function(...) {
     resp <- safe_request(pvp_leaderboard_request(...))
-    entries <- try_pluck(resp, "entries")
-    map(
+    entries <- safely_reduce(resp, "entries")
+    lapply(
         entries,
         function(x) {
-            char <- try_pluck(x, "character")
+            char <- safely_reduce(x, "character")
             list(
-                id = try_pluck(char, "id"),
-                name = try_pluck(char, "name"),
-                realm = try_pluck(char, "realm", "slug"),
-                faction = try_pluck(x, "faction", "type"),
-                rank = try_pluck(x, "rank"),
-                rating = try_pluck(x, "rating"),
-                played = try_pluck(x, "season_match_statistics", "played"),
-                won = try_pluck(x, "season_match_statistics", "won"),
-                lost = try_pluck(x, "season_match_statistics", "lost")
+                id = safely_reduce(char, "id", 1),
+                name = safely_reduce(char, "name", 1),
+                realm = safely_reduce(char, "realm", "slug", 1),
+                faction = safely_reduce(x, "faction", "type", 1),
+                rank = safely_reduce(x, "rank", 1),
+                rating = safely_reduce(x, "rating", 1),
+                played = safely_reduce(x, "season_match_statistics", "played", 1),
+                won = safely_reduce(x, "season_match_statistics", "won", 1),
+                lost = safely_reduce(x, "season_match_statistics", "lost", 1)
             )
         }
     )
@@ -44,10 +45,10 @@ get_leaderboard <- function(...) {
 get_media <- function(...) {
     resp <- safe_request(character_media_request(...))
     list(
-        avatar = try_pluck(media, "assets", 1, "value"),
-        inset = try_pluck(media, "assets", 2, "value"),
-        main = try_pluck(media, "assets", 3, "value"),
-        main_raw = try_pluck(media, "assets", 4, "value")
+        avatar = safely_reduce(media, "assets", 1, "value", 1),
+        inset = safely_reduce(media, "assets", 2, "value", 1),
+        main = safely_reduce(media, "assets", 3, "value", 1),
+        main_raw = safely_reduce(media, "assets", 4, "value", 1)
     )
 }
 
@@ -55,48 +56,48 @@ get_media <- function(...) {
 get_profile <- function(...) {
     resp <- safe_request(character_profile_request(...))
     list(
-        id      = try_pluck(resp, "id"),
-        name    = try_pluck(resp, "name"),
-        gender  = try_pluck(resp, "gender", "type"),
-        faction = try_pluck(resp, "faction", "type"),
-        race    = try_pluck(resp, "race", "id"),
-        class   = try_pluck(resp, "character_class", "id"),
-        spec    = try_pluck(resp, "active_spec", "id"),
-        realm   = try_pluck(resp, "realm", "slug")
+        id      = safely_reduce(resp, "id", 1),
+        name    = safely_reduce(resp, "name", 1),
+        gender  = safely_reduce(resp, "gender", "type", 1),
+        faction = safely_reduce(resp, "faction", "type", 1),
+        race    = safely_reduce(resp, "race", "id", 1),
+        class   = safely_reduce(resp, "character_class", "id", 1),
+        spec    = safely_reduce(resp, "active_spec", "id", 1),
+        realm   = safely_reduce(resp, "realm", "slug", 1)
     )
 }
 
 #' @export
 get_talents <- function(...) {
     resp <- safe_request(character_talents_request(...))
-    specs <- try_pluck(resp, "specializations")
-    map(
+    specs <- safely_reduce(resp, "specializations", 1)
+    lapply(
         specs,
         function(spec) {
             list(
-                specialization = try_pluck(spec, "specialization", "id"),
-                pvp_talents = map(
-                    try_pluck(spec, "pvp_talent_slots"),
+                specialization = safely_reduce(spec, "specialization", "id"),
+                pvp_talents = lapply(
+                    safely_reduce(spec, "pvp_talent_slots"),
                     function(slot) {
-                        try_pluck(slot, "selected", "talent", "id")
+                        safely_reduce(slot, "selected", "talent", "id")
                     }
                 ),
-                loadouts = map(
-                    try_pluck(spec, "loadouts"),
+                loadouts = lapply(
+                    safely_reduce(spec, "loadouts"),
                     function(loadout) {
                         list(
-                            active = try_pluck(loadout, "is_active"),
-                            code = try_pluck(loadout, "talent_loadout_code"),
-                            class_talents = map(
-                                try_pluck(loadout, "selected_class_talents"),
+                            active = safely_reduce(loadout, "is_active"),
+                            code = safely_reduce(loadout, "talent_loadout_code"),
+                            class_talents = lapply(
+                                safely_reduce(loadout, "selected_class_talents"),
                                 function(talent) {
-                                    try_pluck(talent, "id")
+                                    safely_reduce(talent, "id")
                                 }
                             ),
-                            spec_talents = map(
-                                try_pluck(loadout, "selected_spec_talents"),
+                            spec_talents = lapply(
+                                safely_reduce(loadout, "selected_spec_talents"),
                                 function(talent) {
-                                    try_pluck(talent, "id")
+                                    safely_reduce(talent, "id")
                                 }
                             )
                         )
@@ -111,15 +112,15 @@ get_talents <- function(...) {
 get_stats <- function(...) {
     resp <- safe_request(character_statistics_request(...))
     list(
-        id = try_pluck(resp, "character", "id"),
-        mastery = try_pluck(resp, "mastery", "value"),
-        versatility = try_pluck(resp, "versatility"),
-        melee_haste = try_pluck(resp, "melee_haste", "value"),
-        ranged_haste = try_pluck(resp, "ranged_haste", "value"),
-        spell_haste = try_pluck(resp, "spell_haste", "value"),
-        melee_crit = try_pluck(resp, "melee_crit", "value"),
-        ranged_crit = try_pluck(resp, "ranged_crit", "value"),
-        spell_crit = try_pluck(resp, "spell_crit", "value")
+        id = safely_reduce(resp, "character", "id"),
+        mastery = safely_reduce(resp, "mastery", "value"),
+        versatility = safely_reduce(resp, "versatility"),
+        melee_haste = safely_reduce(resp, "melee_haste", "value"),
+        ranged_haste = safely_reduce(resp, "ranged_haste", "value"),
+        spell_haste = safely_reduce(resp, "spell_haste", "value"),
+        melee_crit = safely_reduce(resp, "melee_crit", "value"),
+        ranged_crit = safely_reduce(resp, "ranged_crit", "value"),
+        spell_crit = safely_reduce(resp, "spell_crit", "value")
     )
 }
 
@@ -128,13 +129,13 @@ get_stats <- function(...) {
 get_equip <- function(...) {
     resp <- safe_request(character_equipment_request(...))
     list(
-        id = try_pluck(resp, "character", "id"),
-        items = map(
-            try_pluck(resp, "equipped_items"),
+        id = safely_reduce(resp, "character", "id"),
+        items = lapply(
+            safely_reduce(resp, "equipped_items"),
             function(item) {
                 list(
-                    id = try_pluck(item, "item", "id"),
-                    slot = try_pluck(item, "slot", "type")
+                    id = safely_reduce(item, "item", "id"),
+                    slot = safely_reduce(item, "slot", "type")
                 )
             }
         )
@@ -144,8 +145,8 @@ get_equip <- function(...) {
 #' @export
 get_talent_tree_ids <- function(...) {
     resp <- safe_request(talent_tree_request(...))
-    x <- try_pluck(resp, "spec_talent_trees")
-    map(
+    x <- safely_reduce(resp, "spec_talent_trees")
+    lapply(
         x,
         function(tree) {
             list(
@@ -153,7 +154,7 @@ get_talent_tree_ids <- function(...) {
                     pluck(tree, "key", "href"),
                     pattern = "(?<=(talent-tree\\/))[0-9]*(?=\\/)"
                 ),
-                spec = try_pluck(tree, "name")
+                spec = safely_reduce(tree, "name")
             )
         }
     )
@@ -162,19 +163,19 @@ get_talent_tree_ids <- function(...) {
 #' @export
 get_talent_data <- function(...) {
     resp <- safe_request(talent_tree_data_request(...))
-    x <- try_pluck(
+    x <- safely_reduce(
         resp,
         "class_talent_nodes"
     )
 
-    map(
+    lapply(
         x,
         function(item) {
             tryCatch(
                 expr = {
                     list(
-                        row = try_pluck(item, "display_row"),
-                        spell_id = try_pluck(
+                        row = safely_reduce(item, "display_row"),
+                        spell_id = safely_reduce(
                             item,
                             "ranks",
                             1,

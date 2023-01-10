@@ -9,15 +9,15 @@ box::use(
 
 #' @export
 pipeline_talent_tree_ids <- function(client) {
-    map(
+    lapply(
         get_talent_tree_ids(client),
         function(x) {
             tryCatch(
                 expr = {
                     list(
-                        tree_id = pluck(x, "tree_id"),
-                        spec_id = spec_to_id(pluck(x, "spec")),
-                        spec = pluck(x, "spec")
+                        tree_id = safely_reduce(x, "tree_id", 1),
+                        spec_id = spec_to_id(safely_reduce(x, "spec", 1)),
+                        spec = safely_reduce(x, "spec", 1)
                     )
                 }, error = function(e) {
                     NULL
@@ -30,7 +30,7 @@ pipeline_talent_tree_ids <- function(client) {
 #' @export
 pipeline_talent_trees <- function(talent_tree_ids, client) {
     unlist(
-        map(
+        lapply(
             talent_tree_ids,
             function(x) {
                 tryCatch({
@@ -54,7 +54,7 @@ pipeline_talent_trees <- function(talent_tree_ids, client) {
 
 #' @export
 pipeline_capstone <- function(talent_trees) {
-    map(
+    lapply(
         talent_trees,
         function(x) {
             tryCatch(

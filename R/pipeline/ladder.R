@@ -35,7 +35,10 @@ pipeline_construct_requests <- function(batched_data, type, client) {
 
 #' @export
 pipeline_perform_requests <- function(requests) {
-    map(requests, multi_req_perform)
+    map(
+        requests,
+        multi_req_perform
+    )
 }
 
 #' @export

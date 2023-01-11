@@ -142,8 +142,8 @@ pipeline_equipment_data <- function(equipment_resp) {
                     safely_reduce(resp, "equipped_items"),
                     function(item) {
                         list(
-                            id = safely_reduce(item, "item", "id"),
-                            slot = safely_reduce(item, "slot", "type")
+                            id = safely_reduce(item, "item", "id", 1),
+                            slot = safely_reduce(item, "slot", "type", 1)
                         )
                     }
                 )
@@ -159,14 +159,14 @@ pipeline_statistics_data <- function(statistics_resp) {
         if (!is.null(id)) {
             list(
                 id = id,
-                mastery = safely_reduce(resp, "mastery", "value"),
-                versatility = safely_reduce(resp, "versatility"),
-                melee_haste = safely_reduce(resp, "melee_haste", "value"),
-                ranged_haste = safely_reduce(resp, "ranged_haste", "value"),
-                spell_haste = safely_reduce(resp, "spell_haste", "value"),
-                melee_crit = safely_reduce(resp, "melee_crit", "value"),
-                ranged_crit = safely_reduce(resp, "ranged_crit", "value"),
-                spell_crit = safely_reduce(resp, "spell_crit", "value")
+                mastery = safely_reduce(resp, "mastery", "value", 1),
+                versatility = safely_reduce(resp, "versatility", 1),
+                melee_haste = safely_reduce(resp, "melee_haste", "value", 1),
+                ranged_haste = safely_reduce(resp, "ranged_haste", "value", 1),
+                spell_haste = safely_reduce(resp, "spell_haste", "value", 1),
+                melee_crit = safely_reduce(resp, "melee_crit", "value", 1),
+                ranged_crit = safely_reduce(resp, "ranged_crit", "value", 1),
+                spell_crit = safely_reduce(resp, "spell_crit", "value", 1)
             )
         }
     })

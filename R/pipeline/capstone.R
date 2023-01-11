@@ -1,10 +1,7 @@
 box::use(
-    purrr[map, pluck]
-)
-
-box::use(
     R / logic[...],
-    R / pipeline[...]
+    . / utils[...],
+    . / helpers[...]
 )
 
 #' @export
@@ -33,19 +30,22 @@ pipeline_talent_trees <- function(talent_tree_ids, client) {
         lapply(
             talent_tree_ids,
             function(x) {
-                tryCatch({
-                    res <- list(get_talent_data(
-                        tree_id = x$tree_id,
-                        spec_id = x$spec_id,
-                        client = client
-                    ))
-                    if (length(res) > 0L) {
-                        names(res) <- x$spec_id
+                tryCatch(
+                    {
+                        res <- list(get_talent_data(
+                            tree_id = x$tree_id,
+                            spec_id = x$spec_id,
+                            client = client
+                        ))
+                        if (length(res) > 0L) {
+                            names(res) <- x$spec_id
+                        }
+                        res
+                    },
+                    error = function(e) {
+                        NULL
                     }
-                    res
-                }, error = function(e) {
-                    NULL
-                })
+                )
             }
         ),
         recursive = FALSE
@@ -74,8 +74,8 @@ pipeline_capstone <- function(talent_trees) {
 }
 
 
-get_talent_data <- function(...) {
-    resp <- safe_request(talent_tree_data_request(...))
+get_talent_data <- function(tree_id, spec_id, client) {
+    resp <- safe_request(talent_tree_data_request(tree_id, spec_id, client))
     x <- safely_reduce(
         resp,
         "class_talent_nodes"
@@ -84,18 +84,18 @@ get_talent_data <- function(...) {
     lapply(
         x,
         function(item) {
-           list(
-               row = safely_reduce(item, "display_row"),
-               spell_id = safely_reduce(
-                   item,
-                   "ranks",
-                   1,
-                   "tooltip",
-                   "spell_tooltip",
-                   "spell",
-                   "id"
-               )
-           )
+            list(
+                row = safely_reduce(item, "display_row"),
+                spell_id = safely_reduce(
+                    item,
+                    "ranks",
+                    1,
+                    "tooltip",
+                    "spell_tooltip",
+                    "spell",
+                    "id"
+                )
+            )
         }
     )
 }
@@ -112,7 +112,7 @@ get_talent_tree_ids <- function(...) {
                     safely_reduce(tree, "key", "href", 1),
                     pattern = "(?<=(talent-tree\\/))[0-9]*(?=\\/)"
                 ),
-                spec = safely_reduce(tree, "name")
+                spec = safely_reduce(tree, "name", 1)
             )
         }
     )

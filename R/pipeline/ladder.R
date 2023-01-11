@@ -8,6 +8,54 @@ box::use(
 )
 
 #' @export
+pipeline_season_data <- function(client) {
+    resp <- safe_request(pvp_season_request(client))
+    safely_reduce(
+        resp,
+        "current_season",
+        "id",
+        1
+    )
+}
+
+#' @export
+pipeline_leaderboard_data <- function(season, bracket, client) {
+    resp <- safe_request(pvp_leaderboard_request(season, bracket, client))
+    entries <- safely_reduce(resp, "entries")
+    lapply(
+        entries,
+        function(x) {
+            char <- safely_reduce(x, "character")
+            list(
+                id = safely_reduce(char, "id", 1),
+                name = safely_reduce(char, "name", 1),
+                realm = safely_reduce(char, "realm", "slug", 1),
+                faction = safely_reduce(x, "faction", "type", 1),
+                rank = safely_reduce(x, "rank", 1),
+                rating = safely_reduce(x, "rating", 1),
+                played = safely_reduce(x, "season_match_statistics", "played", 1),
+                won = safely_reduce(x, "season_match_statistics", "won", 1),
+                lost = safely_reduce(x, "season_match_statistics", "lost", 1)
+            )
+        }
+    )
+}
+
+#' @export
+pipeline_player_list <- function(ladder_data) {
+    lapply(ladder_data, function(x) {
+        id <- safely_reduce(x, "id", 1)
+        if (!is.null(id)) {
+            list(
+                id = id,
+                name = safely_reduce(x, "name", 1),
+                realm = safely_reduce(x, "realm", 1)
+            )
+        }
+    })
+}
+
+#' @export
 pipeline_construct_requests <- function(batched_data, type, client) {
     lapply(seq_len(length(batched_data)), function(i) {
         row <- batched_data[[i]]

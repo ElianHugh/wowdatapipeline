@@ -1,6 +1,6 @@
 #' @export
 box::use(
-    . / functions[...],
+    . / helpers[...],
     . / capstone[...],
     . / ladder[...],
     . / targets[...]

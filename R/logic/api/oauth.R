@@ -5,8 +5,8 @@ box::use(
 #' @export
 new_client <- function() {
     oauth_client(
-        id = "464cbbb24c7543568f03fd7e2528cfed",
-        secret = "aGrkTTFLvv6G0GFmmykzFRGL33XJdiqy",
+        id = Sys.getenv("BLIZZAUTH_ID"),
+        secret = Sys.getenv("BLIZZAUTH_SECRET"),
         token_url = "https://us.oauth.battle.net/oauth/token",
         name = "blizzard-oauth",
         auth = "body"

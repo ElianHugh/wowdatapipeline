@@ -72,8 +72,8 @@ profile_targets <- list(
                 "profile",
                 "media",
                 "equipment",
-                "statistics",
-                "talents"
+                "statistics"
+                # "talents"
             )
         ),
         tar_target(
@@ -108,10 +108,10 @@ profile_targets <- list(
         statistics_data,
         pipeline_statistics_data(resp_statistics),
         format = tar_json
-    ),
-    tar_target(
-        talents_data,
-        pipeline_talents_data(resp_talents),
-        format = tar_json
     )
+    # tar_target(
+    #     talents_data,
+    #     pipeline_talents_data(resp_talents),
+    #     format = tar_json
+    # )
 )

@@ -1,3 +1,5 @@
+box::use(stats[na.omit])
+
 box::use(
     R / logic[...],
     . / utils[...],
@@ -60,10 +62,10 @@ pipeline_capstone <- function(talent_trees) {
             tryCatch(
                 expr = {
                     capstone_row <- max(
-                        na.omit(unlist(lapply(x, function(talent) talent$row)))
+                        na.omit(unlist(lapply(x, function(talent) talent[["row"]])))
                     )
                     if (!is.null(capstone_row)) {
-                        Filter(function(talent) talent$row >= 10, x)
+                        Filter(function(talent) talent[["row"]] >= 10, x)
                     }
                 }, error = function(e) {
                     NULL

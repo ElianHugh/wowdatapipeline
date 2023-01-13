@@ -159,14 +159,14 @@ pipeline_statistics_data <- function(statistics_resp) {
         if (!is.null(id)) {
             list(
                 id = id,
-                mastery = safely_reduce(resp, "mastery", "value", 1),
+                mastery = safely_reduce(resp, "mastery", "rating", 1),
                 versatility = safely_reduce(resp, "versatility", 1),
-                melee_haste = safely_reduce(resp, "melee_haste", "value", 1),
-                ranged_haste = safely_reduce(resp, "ranged_haste", "value", 1),
-                spell_haste = safely_reduce(resp, "spell_haste", "value", 1),
-                melee_crit = safely_reduce(resp, "melee_crit", "value", 1),
-                ranged_crit = safely_reduce(resp, "ranged_crit", "value", 1),
-                spell_crit = safely_reduce(resp, "spell_crit", "value", 1)
+                melee_haste = safely_reduce(resp, "melee_haste", "rating", 1),
+                ranged_haste = safely_reduce(resp, "ranged_haste", "rating", 1),
+                spell_haste = safely_reduce(resp, "spell_haste", "rating", 1),
+                melee_crit = safely_reduce(resp, "melee_crit", "rating", 1),
+                ranged_crit = safely_reduce(resp, "ranged_crit", "rating", 1),
+                spell_crit = safely_reduce(resp, "spell_crit", "rating", 1)
             )
         }
     })

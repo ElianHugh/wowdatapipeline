@@ -10,12 +10,16 @@ box::use(
 #' @export
 pipeline_season_data <- function(client) {
     resp <- safe_request(pvp_season_request(client))
-    safely_reduce(
+    res <- safely_reduce(
         resp,
         "current_season",
         "id",
         1
     )
+    if (is.null(res)) {
+        stop("[ERROR] BAD OAUTH CLIENT")
+    }
+    res
 }
 
 #' @export
@@ -92,8 +96,18 @@ pipeline_get_request_body <- function(performed_requests) {
     })
 }
 
-
 #' @export
+pipeline_extract_data <- function(resp, type) {
+    switch(
+        type,
+        "profile" = pipeline_profile_data,
+        "media" = pipeline_media_data,
+        "equipment" = pipeline_equipment_data,
+        "statistics" = pipeline_statistics_data,
+        "talents" = pipeline_talents_data
+    )(resp)
+}
+
 pipeline_profile_data <- function(profile_resp) {
     lapply(
         profile_resp,
@@ -115,7 +129,6 @@ pipeline_profile_data <- function(profile_resp) {
     )
 }
 
-#' @export
 pipeline_media_data <- function(media_resp) {
     lapply(media_resp, function(resp) {
         id <- safely_reduce(resp, "character", "id")
@@ -131,7 +144,6 @@ pipeline_media_data <- function(media_resp) {
     })
 }
 
-#' @export
 pipeline_equipment_data <- function(equipment_resp) {
     lapply(equipment_resp, function(resp) {
         id <- safely_reduce(resp, "character", "id")
@@ -152,7 +164,6 @@ pipeline_equipment_data <- function(equipment_resp) {
     })
 }
 
-#' @export
 pipeline_statistics_data <- function(statistics_resp) {
     lapply(statistics_resp, function(resp) {
         id <- safely_reduce(resp, "character", "id")
@@ -172,7 +183,6 @@ pipeline_statistics_data <- function(statistics_resp) {
     })
 }
 
-#' @export
 pipeline_talents_data <- function(talents_resp) {
     lapply(talents_resp, function(resp) {
         specs <- safely_reduce(resp, "specializations")

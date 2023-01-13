@@ -1,5 +1,5 @@
 box::use(
-    targets[tar_target],
+    targets[tar_target, tar_cue],
     tarchetypes[tar_map, tar_age],
     tibble[tibble]
 )
@@ -23,7 +23,7 @@ capstone_targets <- list(
         pipeline_talent_trees(spec_talent_tree_ids, client)
     ),
     tar_target(
-        spec_capstones,
+        data_capstones,
         pipeline_capstone(spec_talent_trees),
         format = tar_json
     )
@@ -48,14 +48,18 @@ ladder_targets <- list(
             )
         ),
         tar_age(
-            ladder_data,
+            data_ladder,
             pipeline_leaderboard_data(season, bracket, client),
             age = as.difftime(1, units = "days"),
-            format = tar_json
+            format = tar_json,
+            cue = tar_cue(
+                file = FALSE,
+                seed = FALSE
+            )
         ),
         tar_target(
             player_list,
-            pipeline_player_list(ladder_data)
+            pipeline_player_list(data_ladder)
         )
     )
 )
@@ -72,8 +76,8 @@ profile_targets <- list(
                 "profile",
                 "media",
                 "equipment",
-                "statistics"
-                # "talents"
+                "statistics",
+                "talents"
             )
         ),
         tar_target(
@@ -85,33 +89,13 @@ profile_targets <- list(
             pipeline_perform_requests(batched_requests)
         ),
         tar_target(
-            resp,
+            responses,
             pipeline_get_request_body(performed_requests)
+        ),
+        tar_target(
+            data,
+            pipeline_extract_data(responses, type),
+            format = tar_json
         )
-    ),
-    tar_target(
-        profile_data,
-        pipeline_profile_data(resp_profile),
-        format = tar_json
-    ),
-    tar_target(
-        media_data,
-        pipeline_media_data(resp_media),
-        format = tar_json
-    ),
-    tar_target(
-        equipment_data,
-        pipeline_equipment_data(resp_equipment),
-        format = tar_json
-    ),
-    tar_target(
-        statistics_data,
-        pipeline_statistics_data(resp_statistics),
-        format = tar_json
     )
-    # tar_target(
-    #     talents_data,
-    #     pipeline_talents_data(resp_talents),
-    #     format = tar_json
-    # )
 )

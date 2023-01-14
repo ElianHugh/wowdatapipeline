@@ -20,6 +20,8 @@ tar_option_set(
     garbage_collection = TRUE
 )
 
+clear_logs()
+
 
 list(
     tar_target(

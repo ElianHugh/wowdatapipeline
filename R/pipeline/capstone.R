@@ -19,6 +19,7 @@ pipeline_talent_tree_ids <- function(client) {
                         spec = safely_reduce(x, "spec", 1)
                     )
                 }, error = function(e) {
+                    log_error(e)
                     NULL
                 }
             )
@@ -45,6 +46,7 @@ pipeline_talent_trees <- function(talent_tree_ids, client) {
                         res
                     },
                     error = function(e) {
+                        log_error(e)
                         NULL
                     }
                 )
@@ -68,6 +70,7 @@ pipeline_capstone <- function(talent_trees) {
                         Filter(function(talent) talent[["row"]] >= 10, x)
                     }
                 }, error = function(e) {
+                    log_error(e)
                     NULL
                 }
             )

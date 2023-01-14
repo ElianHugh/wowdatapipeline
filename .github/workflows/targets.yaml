@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       BLIZZAUTH_ID: ${{ secrets.BLIZZAUTH_ID }}
-      BLIZZAUTH_SECRET: ${{ secrets.BLIZZAUTH_SECREET }}
+      BLIZZAUTH_SECRET: ${{ secrets.BLIZZAUTH_SECRET }}
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       RENV_PATHS_ROOT: ~/.local/share/renv
     steps:

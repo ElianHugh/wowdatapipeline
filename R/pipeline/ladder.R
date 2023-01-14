@@ -17,7 +17,12 @@ pipeline_season_data <- function(client) {
         1
     )
     if (is.null(res)) {
-        stop("[ERROR] BAD OAUTH CLIENT")
+        log_error(
+            list(
+                call = "pipeline_season_data",
+                message = "Season returned NULL"
+            )
+        )
     }
     res
 }

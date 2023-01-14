@@ -1,3 +1,5 @@
+box::use(./log[log_error])
+
 #' @export
 safely_reduce <- function(init, ...) {
     tryCatch(

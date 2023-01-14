@@ -95,7 +95,11 @@ profile_targets <- list(
         tar_target(
             data,
             pipeline_extract_data(responses, type),
-            format = tar_json
+            format = tar_json,
+            cue = tar_cue(
+                file = FALSE,
+                seed = FALSE
+            )
         )
     )
 )

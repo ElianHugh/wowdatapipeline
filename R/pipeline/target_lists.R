@@ -76,8 +76,8 @@ profile_targets <- list(
                 "profile",
                 "media",
                 "equipment",
-                "statistics"
-                # "talents"
+                "statistics",
+                "talents"
             )
         ),
         tar_target(

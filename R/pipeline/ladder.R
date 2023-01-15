@@ -194,7 +194,7 @@ pipeline_talents_data <- function(talents_resp) {
         if (!is.null(id)) {
             list(
                 id = id,
-                lapply(
+                specializations = lapply(
                     specs,
                     function(spec) {
                         list(

@@ -103,8 +103,7 @@ pipeline_get_request_body <- function(performed_requests) {
 
 #' @export
 pipeline_extract_data <- function(resp, type) {
-    switch(
-        type,
+    switch(type,
         "profile" = pipeline_profile_data,
         "media" = pipeline_media_data,
         "equipment" = pipeline_equipment_data,
@@ -193,41 +192,43 @@ pipeline_talents_data <- function(talents_resp) {
         specs <- safely_reduce(resp, "specializations")
         id <- safely_reduce(resp, "character", "id", 1)
         if (!is.null(id)) {
-            lapply(
-                specs,
-                function(spec) {
-                    list(
-                        id = id,
-                        specialization = safely_reduce(spec, "specialization", "id"),
-                        pvp_talents = lapply(
-                            safely_reduce(spec, "pvp_talent_slots"),
-                            function(slot) {
-                                safely_reduce(slot, "selected", "talent", "id")
-                            }
-                        ),
-                        loadouts = lapply(
-                            safely_reduce(spec, "loadouts"),
-                            function(loadout) {
-                                list(
-                                    active = safely_reduce(loadout, "is_active"),
-                                    code = safely_reduce(loadout, "talent_loadout_code"),
-                                    class_talents = lapply(
-                                        safely_reduce(loadout, "selected_class_talents"),
-                                        function(talent) {
-                                            safely_reduce(talent, "id")
-                                        }
-                                    ),
-                                    spec_talents = lapply(
-                                        safely_reduce(loadout, "selected_spec_talents"),
-                                        function(talent) {
-                                            safely_reduce(talent, "id")
-                                        }
+            list(
+                id = id,
+                lapply(
+                    specs,
+                    function(spec) {
+                        list(
+                            specialization = safely_reduce(spec, "specialization", "id"),
+                            pvp_talents = lapply(
+                                safely_reduce(spec, "pvp_talent_slots"),
+                                function(slot) {
+                                    safely_reduce(slot, "selected", "talent", "id")
+                                }
+                            ),
+                            loadouts = lapply(
+                                safely_reduce(spec, "loadouts"),
+                                function(loadout) {
+                                    list(
+                                        active = safely_reduce(loadout, "is_active"),
+                                        code = safely_reduce(loadout, "talent_loadout_code"),
+                                        class_talents = lapply(
+                                            safely_reduce(loadout, "selected_class_talents"),
+                                            function(talent) {
+                                                safely_reduce(talent, "id")
+                                            }
+                                        ),
+                                        spec_talents = lapply(
+                                            safely_reduce(loadout, "selected_spec_talents"),
+                                            function(talent) {
+                                                safely_reduce(talent, "id")
+                                            }
+                                        )
                                     )
-                                )
-                            }
+                                }
+                            )
                         )
-                    )
-                }
+                    }
+                )
             )
         } else {
             NULL

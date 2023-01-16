@@ -220,7 +220,11 @@ pipeline_talents_data <- function(talents_resp) {
                                         spec_talents = lapply(
                                             safely_reduce(loadout, "selected_spec_talents"),
                                             function(talent) {
-                                                safely_reduce(talent, "tooltip", "spell_tooltip", "spell", "id")
+                                                list(
+                                                    spell_id = safely_reduce(talent, "tooltip", "spell_tooltip", "spell", "id"),
+                                                    talent_id = safely_reduce(talent, "tooltip", "talent", "id")
+                                                )
+
                                             }
                                         )
                                     )

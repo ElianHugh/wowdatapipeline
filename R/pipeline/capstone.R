@@ -101,6 +101,14 @@ get_talent_data <- function(tree_id, spec_id, client) {
                         "spell_tooltip",
                         "spell",
                         "id"
+                    ),
+                    talent_id = safely_reduce(
+                        item,
+                        "ranks",
+                        1,
+                        "tooltip",
+                        "talent",
+                        "id"
                     )
                 )
             }

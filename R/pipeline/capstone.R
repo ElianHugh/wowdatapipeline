@@ -8,7 +8,7 @@ box::use(
 
 #' @export
 pipeline_talent_tree_ids <- function(client) {
-    lapply(
+    res <- lapply(
         get_talent_tree_ids(client),
         function(x) {
             tryCatch(
@@ -25,27 +25,24 @@ pipeline_talent_tree_ids <- function(client) {
             )
         }
     )
+    unique(res)
 }
 
 #' @export
 pipeline_talent_trees <- function(talent_tree_ids, client) {
-    unlist(
         lapply(
             talent_tree_ids,
             function(x) {
                 tryCatch(
                     {
-                        res <- list(
-                            get_talent_data(
+                        list(
+                            id = x$spec_id,
+                            talents = get_talent_data(
                                 tree_id = x$tree_id,
                                 spec_id = x$spec_id,
                                 client = client
                             )
                         )
-                        if (length(res) > 0L) {
-                            names(res) <- x$spec_id
-                        }
-                        res
                     },
                     error = function(e) {
                         log_error(e)
@@ -53,45 +50,43 @@ pipeline_talent_trees <- function(talent_tree_ids, client) {
                     }
                 )
             }
-        ),
-        recursive = FALSE
-    )
+        )
 }
 
 #' @export
 pipeline_capstone <- function(talent_trees) {
-    lapply(
-        talent_trees,
-        function(x) {
-            tryCatch(
-                expr = {
-                    capstone_row <- max(
-                        na.omit(unlist(lapply(x, function(talent) talent[["row"]])))
-                    )
-                    if (!is.null(capstone_row)) {
-                        Filter(function(talent) talent[["row"]] >= 10, x)
-                    }
-                }, error = function(e) {
-                    log_error(e)
-                    NULL
-                }
-            )
-        }
-    )
+    get_maximal_row <- function(lst) {
+        possible_rows <- unlist(lapply(lst, function(talent) {
+            row <- talent[["row"]]
+            if (!is.null(row) && is.numeric(row)) {
+                return(row)
+            } else {
+                return(-Inf)
+            }
+        }))
+        max(possible_rows, na.rm = TRUE)
+    }
+    filter_by_row <- function(lst, max_row) {
+        Filter(function(talent) talent[["row"]] >= max_row, lst)
+    }
+
+    lapply(talent_trees, function(x) {
+        list(
+            id = x$id,
+            class = {
+                max_row <- get_maximal_row(x[["talents"]][["class"]])
+                filter_by_row(x[["talents"]][["class"]], max_row)
+            },
+            specialisation = {
+                max_row <- get_maximal_row(x[["talents"]][["specialisation"]])
+                filter_by_row(x[["talents"]][["specialisation"]], max_row)
+            }
+        )
+    })
 }
 
 
 get_talent_data <- function(tree_id, spec_id, client) {
-    resp <- safe_request(talent_tree_data_request(tree_id, spec_id, client))
-    x <- safely_reduce(
-        resp,
-        "class_talent_nodes"
-    )
-    y <- safely_reduce(
-        resp,
-        "spec_talent_nodes"
-    )
-
     getNodeIDs <- function(lst) {
         lapply(
             lst,
@@ -111,6 +106,17 @@ get_talent_data <- function(tree_id, spec_id, client) {
             }
         )
     }
+
+    resp <- safe_request(talent_tree_data_request(tree_id, spec_id, client))
+    x <- safely_reduce(
+        resp,
+        "class_talent_nodes"
+    )
+    y <- safely_reduce(
+        resp,
+        "spec_talent_nodes"
+    )
+
     list(
         class = getNodeIDs(x),
         specialisation = getNodeIDs(y)

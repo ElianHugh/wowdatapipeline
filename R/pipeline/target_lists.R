@@ -1,5 +1,5 @@
 box::use(
-    targets[tar_target, tar_cue],
+    targets[tar_target, tar_cue, tar_option_set],
     tarchetypes[tar_map, tar_age],
     tibble[tibble]
 )
@@ -12,19 +12,26 @@ box::use(
     . / helpers[...]
 )
 
+tar_option_set(
+    format = "qs",
+    memory = "transient",
+    garbage_collection = TRUE
+)
+
+
 #' @export
 capstone_targets <- list(
     tar_target(
-        spec_talent_tree_ids,
+        input_talent_tree_ids,
         pipeline_talent_tree_ids(client)
     ),
     tar_target(
-        spec_talent_trees,
-        pipeline_talent_trees(spec_talent_tree_ids, client)
+        input_talent_trees,
+        pipeline_talent_trees(input_talent_tree_ids, client)
     ),
     tar_target(
         data_capstones,
-        pipeline_capstone(spec_talent_trees),
+        pipeline_capstone(input_talent_trees),
         format = tar_json
     )
 )
@@ -32,7 +39,7 @@ capstone_targets <- list(
 #' @export
 season_targets <- list(
     tar_target(
-        season,
+        input_season,
         pipeline_season_data(client)
     )
 )
@@ -48,8 +55,8 @@ ladder_targets <- list(
             )
         ),
         tar_age(
-            data_ladder,
-            pipeline_leaderboard_data(season, bracket, client),
+            data,
+            pipeline_leaderboard_data(input_season, bracket, client),
             age = as.difftime(1, units = "days"),
             format = tar_json,
             cue = tar_cue(
@@ -58,8 +65,8 @@ ladder_targets <- list(
             )
         ),
         tar_target(
-            player_list,
-            pipeline_player_list(data_ladder)
+            input_player_list,
+            pipeline_player_list(data)
         )
     )
 )
@@ -67,7 +74,7 @@ ladder_targets <- list(
 #' @export
 profile_targets <- list(
     tar_target(
-        batched_ladder_data,
+        input_batched_ladder_data,
         batch_list(master_player_list)
     ),
     tar_map(
@@ -81,20 +88,20 @@ profile_targets <- list(
             )
         ),
         tar_target(
-            batched_requests,
-            pipeline_construct_requests(batched_ladder_data, type, client)
+            input_batched_requests,
+            pipeline_construct_requests(input_batched_ladder_data, type, client)
         ),
         tar_target(
-            performed_requests,
-            pipeline_perform_requests(batched_requests)
+            input_performed_requests,
+            pipeline_perform_requests(input_batched_requests)
         ),
         tar_target(
-            responses,
-            pipeline_get_request_body(performed_requests)
+            input_responses,
+            pipeline_get_request_body(input_performed_requests)
         ),
         tar_target(
             data,
-            pipeline_extract_data(responses, type),
+            pipeline_extract_data(input_responses, type),
             format = tar_json,
             cue = tar_cue(
                 file = FALSE,

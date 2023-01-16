@@ -35,11 +35,13 @@ pipeline_talent_trees <- function(talent_tree_ids, client) {
             function(x) {
                 tryCatch(
                     {
-                        res <- list(get_talent_data(
-                            tree_id = x$tree_id,
-                            spec_id = x$spec_id,
-                            client = client
-                        ))
+                        res <- list(
+                            get_talent_data(
+                                tree_id = x$tree_id,
+                                spec_id = x$spec_id,
+                                client = client
+                            )
+                        )
                         if (length(res) > 0L) {
                             names(res) <- x$spec_id
                         }
@@ -85,23 +87,33 @@ get_talent_data <- function(tree_id, spec_id, client) {
         resp,
         "class_talent_nodes"
     )
+    y <- safely_reduce(
+        resp,
+        "spec_talent_nodes"
+    )
 
-    lapply(
-        x,
-        function(item) {
-            list(
-                row = safely_reduce(item, "display_row"),
-                spell_id = safely_reduce(
-                    item,
-                    "ranks",
-                    1,
-                    "tooltip",
-                    "spell_tooltip",
-                    "spell",
-                    "id"
+    getNodeIDs <- function(lst) {
+        lapply(
+            lst,
+            function(item) {
+                list(
+                    row = safely_reduce(item, "display_row"),
+                    spell_id = safely_reduce(
+                        item,
+                        "ranks",
+                        1,
+                        "tooltip",
+                        "spell_tooltip",
+                        "spell",
+                        "id"
+                    )
                 )
-            )
-        }
+            }
+        )
+    }
+    list(
+        class = getNodeIDs(x),
+        specialisation = getNodeIDs(y)
     )
 }
 

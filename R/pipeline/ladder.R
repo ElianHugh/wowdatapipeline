@@ -71,14 +71,16 @@ pipeline_construct_requests <- function(batched_data, type, client) {
         lapply(row, function(x) {
             name <- tolower(x$name)
             realm <- tolower(x$realm)
-            request_fn <- switch(type,
-                profile = character_profile_request,
-                media = character_media_request,
-                equipment = character_equipment_request,
-                statistics = character_statistics_request,
-                talents = character_talents_request
-            )
-            request_fn(realm, name, client)
+            if (!is.null(name) && !is.null(realm)) {
+                request_fn <- switch(type,
+                    profile = character_profile_request,
+                    media = character_media_request,
+                    equipment = character_equipment_request,
+                    statistics = character_statistics_request,
+                    talents = character_talents_request
+                )
+                request_fn(realm, name, client)
+            }
         })
     })
 }

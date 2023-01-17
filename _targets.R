@@ -1,7 +1,7 @@
 options(box.path = getwd())
 
 box::use(
-    targets[tar_target, tar_option_set],
+    targets[tar_target, tar_option_set, tar_cue],
     tarchetypes[tar_age, tar_map, tar_combine],
     purrr[pluck, map_df, map],
     tibble[tibble],
@@ -27,6 +27,9 @@ list(
     tar_target(
         client,
         new_client(),
+        cue = tar_cue(
+            mode = "always"
+        )
     ),
     capstone_targets,
     season_targets,

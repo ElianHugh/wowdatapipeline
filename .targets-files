@@ -1,4 +1,5 @@
 .targets-files
+.targets-runs/
 _targets/.gitignore
 _targets/meta/meta
 _targets/meta/process
@@ -35,5 +36,4 @@ _targets/objects/input_responses_talents
 _targets/objects/input_season
 _targets/objects/input_talent_tree_ids
 _targets/objects/input_talent_trees
-_targets/objects/log
 _targets/objects/master_player_list

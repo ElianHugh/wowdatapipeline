@@ -47,7 +47,7 @@ pipeline_leaderboard_data <- function(season, bracket, client) {
                 lost = safely_reduce(x, "season_match_statistics", "lost", 1)
             )
         }
-    )[1:50]
+    )[1:65]
 }
 
 #' @export

@@ -202,7 +202,10 @@ pipeline_talents_data <- function(talents_resp) {
                             pvp_talents = lapply(
                                 safely_reduce(spec, "pvp_talent_slots"),
                                 function(slot) {
-                                    safely_reduce(slot, "selected", "talent", "id")
+                                    list(
+                                        spell_id = safely_reduce(slot, "selected", "talent", "id"),
+                                        name = safely_reduce(slot, "selected", "talent", "name")
+                                    )
                                 }
                             ),
                             loadouts = lapply(
@@ -216,7 +219,8 @@ pipeline_talents_data <- function(talents_resp) {
                                             function(talent) {
                                                 list(
                                                     spell_id = safely_reduce(talent, "tooltip", "spell_tooltip", "spell", "id"),
-                                                talent_id = safely_reduce(talent, "tooltip", "talent", "id")
+                                                    talent_id = safely_reduce(talent, "tooltip", "talent", "id"),
+                                                    name = safely_reduce(talent, "tooltip", "talent", "name")
                                                 )
                                             }
                                         ),
@@ -225,7 +229,8 @@ pipeline_talents_data <- function(talents_resp) {
                                             function(talent) {
                                                 list(
                                                     spell_id = safely_reduce(talent, "tooltip", "spell_tooltip", "spell", "id"),
-                                                    talent_id = safely_reduce(talent, "tooltip", "talent", "id")
+                                                    talent_id = safely_reduce(talent, "tooltip", "talent", "id"),
+                                                    name = safely_reduce(talent, "tooltip", "talent", "name")
                                                 )
 
                                             }

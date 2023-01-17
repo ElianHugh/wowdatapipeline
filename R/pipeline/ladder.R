@@ -203,7 +203,7 @@ pipeline_talents_data <- function(talents_resp) {
                                 safely_reduce(spec, "pvp_talent_slots"),
                                 function(slot) {
                                     list(
-                                        spell_id = safely_reduce(slot, "selected", "talent", "id"),
+                                        spell_id = safely_reduce(slot, "selected", "spell_tooltip", "spell", "id"),
                                         name = safely_reduce(slot, "selected", "talent", "name")
                                     )
                                 }

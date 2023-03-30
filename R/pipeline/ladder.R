@@ -32,7 +32,7 @@ pipeline_leaderboard_data <- function(season, bracket, client) {
     resp <- safe_request(pvp_leaderboard_request(season, bracket, client))
     entries <- safely_reduce(resp, "entries")
     lapply(
-        entries,
+        entries[1:100],
         function(x) {
             char <- safely_reduce(x, "character")
             list(
@@ -47,7 +47,7 @@ pipeline_leaderboard_data <- function(season, bracket, client) {
                 lost = safely_reduce(x, "season_match_statistics", "lost", 1)
             )
         }
-    )[1:100]
+    )
 }
 
 #' @export

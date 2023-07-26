@@ -38,14 +38,12 @@ capstone_targets <- list(
 
 #' @export
 season_targets <- list(
-    tar_age(
+    tar_target(
         input_season,
         pipeline_season_data(client),
-        age = as.difftime(1, units = "days"),
         cue = tar_cue(
-            file = FALSE,
-            seed = FALSE
-        )
+            mode = "always"
+    )
     )
 )
 

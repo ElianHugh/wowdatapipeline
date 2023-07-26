@@ -51,6 +51,7 @@ spec_to_id <- function(spec_string) {
       Vengeance = 581,
       # Evoker
       Preservation = 1467,
-      Devastation = 1468
+      Devastation = 1468,
+      Augmentation = 1473
     )[[spec_string]]
 }

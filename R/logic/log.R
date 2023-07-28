@@ -16,7 +16,10 @@ log_error <- function(e, context = "N/A") {
 
 #' @export
 clear_logs <- function() {
+    if (file.exists("_targets/objects/log.old")) {
+        file.remove("_targets/objects/log.old")
+    }
     if (file.exists("_targets/objects/log")) {
-        file.remove("_targets/objects/log")
+        file.rename("_targets/objects/log.old")
     }
 }

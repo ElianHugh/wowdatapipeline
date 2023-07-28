@@ -30,27 +30,27 @@ pipeline_talent_tree_ids <- function(client) {
 
 #' @export
 pipeline_talent_trees <- function(talent_tree_ids, client) {
-        lapply(
-            talent_tree_ids,
-            function(x) {
-                tryCatch(
-                    {
-                        list(
-                            id = x$spec_id,
-                            talents = get_talent_data(
-                                tree_id = x$tree_id,
-                                spec_id = x$spec_id,
-                                client = client
-                            )
+    lapply(
+        talent_tree_ids,
+        function(x) {
+            tryCatch(
+                {
+                    list(
+                        id = x$spec_id,
+                        talents = get_talent_data(
+                            tree_id = x$tree_id,
+                            spec_id = x$spec_id,
+                            client = client
                         )
-                    },
-                    error = function(e) {
-                        log_error(e)
-                        NULL
-                    }
-                )
-            }
-        )
+                    )
+                },
+                error = function(e) {
+                    log_error(e)
+                    NULL
+                }
+            )
+        }
+    )
 }
 
 #' @export
@@ -87,7 +87,7 @@ pipeline_capstone <- function(talent_trees) {
 
 
 get_talent_data <- function(tree_id, spec_id, client) {
-    getNodeIDs <- function(lst) {
+    get_node_ids <- function(lst) {
         lapply(
             lst,
             function(item) {
@@ -126,8 +126,8 @@ get_talent_data <- function(tree_id, spec_id, client) {
     )
 
     list(
-        class = getNodeIDs(x),
-        specialisation = getNodeIDs(y)
+        class = get_node_ids(x),
+        specialisation = get_node_ids(y)
     )
 }
 

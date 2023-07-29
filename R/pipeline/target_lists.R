@@ -52,8 +52,7 @@ ladder_targets <- list(
         values = tibble(
             bracket = c(
                 "2v2",
-                "3v3",
-                "rbg"
+                "3v3"
             )
         ),
         tar_age(

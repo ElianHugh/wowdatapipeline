@@ -566,12 +566,17 @@
     "renv": {
       "Package": "renv",
       "Version": "1.0.0.9000",
-      "Source": "Repository",
-      "Repository": "https://rstudio.r-universe.dev",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "rstudio",
+      "RemoteRepo": "renv",
+      "RemoteRef": "main",
+      "RemoteSha": "3ab1b49f7ff1da4499244f59ffde442ca3c04d05",
       "Requirements": [
         "utils"
       ],
-      "Hash": "aacc4aa9f20739ea7dc3e92f7bf240d7"
+      "Hash": "7525c2eb6972da99ef6ba5ef47dd52c5"
     },
     "rlang": {
       "Package": "rlang",

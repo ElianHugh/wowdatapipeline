@@ -14,7 +14,7 @@ pipeline_season_data <- function(client) {
         resp,
         "current_season",
         "id",
-        1
+        1L
     )
     if (is.null(res)) {
         log_error(
@@ -36,12 +36,12 @@ pipeline_leaderboard_data <- function(season, bracket, client) {
         function(x) {
             char <- safely_reduce(x, "character")
             list(
-                id = safely_reduce(char, "id", 1),
-                name = safely_reduce(char, "name", 1),
-                realm = safely_reduce(char, "realm", "slug", 1),
-                faction = safely_reduce(x, "faction", "type", 1),
-                rank = safely_reduce(x, "rank", 1),
-                rating = safely_reduce(x, "rating", 1),
+                id = safely_reduce(char, "id", 1L),
+                name = safely_reduce(char, "name", 1L),
+                realm = safely_reduce(char, "realm", "slug", 1L),
+                faction = safely_reduce(x, "faction", "type", 1L),
+                rank = safely_reduce(x, "rank", 1L),
+                rating = safely_reduce(x, "rating", 1L),
                 played = safely_reduce(x, "season_match_statistics", "played", 1L),
                 won = safely_reduce(x, "season_match_statistics", "won", 1L),
                 lost = safely_reduce(x, "season_match_statistics", "lost", 1L)
@@ -143,8 +143,7 @@ pipeline_media_data <- function(media_resp) {
                 id = id,
                 avatar = safely_reduce(resp, "assets", 1L, "value"),
                 inset = safely_reduce(resp, "assets", 2L, "value"),
-                main = safely_reduce(resp, "assets", 3L, "value"),
-                main_raw = safely_reduce(resp, "assets", 4L, "value")
+                main = safely_reduce(resp, "assets", 3L, "value")
             )
         }
     })

@@ -61,7 +61,7 @@ pipeline_capstone <- function(talent_trees) {
     get_maximal_row <- function(lst) {
         possible_rows <- unlist(lapply(lst, function(talent) {
             row <- talent[["row"]]
-            if (!is.null(row) && is.numeric(row) && length(row) > 0) {
+            if (!is.null(row) && is.numeric(row) && length(row) > 0L) {
                 return(row)
             } else {
                 return(-Inf)

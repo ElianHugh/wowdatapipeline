@@ -32,7 +32,7 @@ pipeline_leaderboard_data <- function(season, bracket, client) {
     resp <- safe_request(pvp_leaderboard_request(season, bracket, client))
     entries <- safely_reduce(resp, "entries")
     lapply(
-        entries[1:150],
+        entries[1L:150L],
         function(x) {
             char <- safely_reduce(x, "character")
             list(
@@ -42,9 +42,9 @@ pipeline_leaderboard_data <- function(season, bracket, client) {
                 faction = safely_reduce(x, "faction", "type", 1),
                 rank = safely_reduce(x, "rank", 1),
                 rating = safely_reduce(x, "rating", 1),
-                played = safely_reduce(x, "season_match_statistics", "played", 1),
-                won = safely_reduce(x, "season_match_statistics", "won", 1),
-                lost = safely_reduce(x, "season_match_statistics", "lost", 1)
+                played = safely_reduce(x, "season_match_statistics", "played", 1L),
+                won = safely_reduce(x, "season_match_statistics", "won", 1L),
+                lost = safely_reduce(x, "season_match_statistics", "lost", 1L)
             )
         }
     )
@@ -53,12 +53,12 @@ pipeline_leaderboard_data <- function(season, bracket, client) {
 #' @export
 pipeline_player_list <- function(ladder_data) {
     lapply(ladder_data, function(x) {
-        id <- safely_reduce(x, "id", 1)
+        id <- safely_reduce(x, "id", 1L)
         if (!is.null(id)) {
             list(
                 id = id,
-                name = safely_reduce(x, "name", 1),
-                realm = safely_reduce(x, "realm", 1)
+                name = safely_reduce(x, "name", 1L),
+                realm = safely_reduce(x, "realm", 1L)
             )
         }
     })
@@ -141,10 +141,10 @@ pipeline_media_data <- function(media_resp) {
         if (!is.null(id)) {
             list(
                 id = id,
-                avatar = safely_reduce(resp, "assets", 1, "value"),
-                inset = safely_reduce(resp, "assets", 2, "value"),
-                main = safely_reduce(resp, "assets", 3, "value"),
-                main_raw = safely_reduce(resp, "assets", 4, "value")
+                avatar = safely_reduce(resp, "assets", 1L, "value"),
+                inset = safely_reduce(resp, "assets", 2L, "value"),
+                main = safely_reduce(resp, "assets", 3L, "value"),
+                main_raw = safely_reduce(resp, "assets", 4L, "value")
             )
         }
     })
@@ -160,8 +160,8 @@ pipeline_equipment_data <- function(equipment_resp) {
                     safely_reduce(resp, "equipped_items"),
                     function(item) {
                         list(
-                            id = safely_reduce(item, "item", "id", 1),
-                            slot = safely_reduce(item, "slot", "type", 1)
+                            id = safely_reduce(item, "item", "id", 1L),
+                            slot = safely_reduce(item, "slot", "type", 1L)
                         )
                     }
                 )
@@ -176,14 +176,14 @@ pipeline_statistics_data <- function(statistics_resp) {
         if (!is.null(id)) {
             list(
                 id = id,
-                mastery = safely_reduce(resp, "mastery", "rating", 1),
-                versatility = safely_reduce(resp, "versatility", 1),
-                melee_haste = safely_reduce(resp, "melee_haste", "rating", 1),
-                ranged_haste = safely_reduce(resp, "ranged_haste", "rating", 1),
-                spell_haste = safely_reduce(resp, "spell_haste", "rating", 1),
-                melee_crit = safely_reduce(resp, "melee_crit", "rating", 1),
-                ranged_crit = safely_reduce(resp, "ranged_crit", "rating", 1),
-                spell_crit = safely_reduce(resp, "spell_crit", "rating", 1)
+                mastery = safely_reduce(resp, "mastery", "rating", 1L),
+                versatility = safely_reduce(resp, "versatility", 1L),
+                melee_haste = safely_reduce(resp, "melee_haste", "rating", 1L),
+                ranged_haste = safely_reduce(resp, "ranged_haste", "rating", 1L),
+                spell_haste = safely_reduce(resp, "spell_haste", "rating", 1L),
+                melee_crit = safely_reduce(resp, "melee_crit", "rating", 1L),
+                ranged_crit = safely_reduce(resp, "ranged_crit", "rating", 1L),
+                spell_crit = safely_reduce(resp, "spell_crit", "rating", 1L)
             )
         }
     })
@@ -192,7 +192,7 @@ pipeline_statistics_data <- function(statistics_resp) {
 pipeline_talents_data <- function(talents_resp) {
     lapply(talents_resp, function(resp) {
         specs <- safely_reduce(resp, "specializations")
-        id <- safely_reduce(resp, "character", "id", 1)
+        id <- safely_reduce(resp, "character", "id", 1L)
         if (!is.null(id)) {
             list(
                 id = id,

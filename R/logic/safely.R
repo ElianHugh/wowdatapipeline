@@ -7,7 +7,7 @@ safely_reduce <- function(init, ...) {
             Reduce(`[[`, x = list(...), init = init)
         },
         error = function(e) {
-            log_error(e)
+            log_error(e, context = "Error during reduce call")
             list(NULL)
         }
     )
@@ -27,7 +27,7 @@ safe_request <- function(req_call) {
             }
         },
         error = function(e) {
-            log_error(e)
+            log_error(e, context = "Error during an httr2 request")
         }
     )
 }

@@ -8,7 +8,7 @@ log_error <- function(e, context = "N/A") {
         ~Time, ~Call, ~Message, ~Context,
         Sys.time(), deparse(e[["call"]]), e[["message"]], context
     )
-    con <- file("_targets/objects/log", open = "a+")
+    con <- file("_targets/objects/log.ndjson", open = "a+")
     stream_out(msg, con, verbose = FALSE)
     close(con)
     invisible(NULL)
@@ -16,10 +16,10 @@ log_error <- function(e, context = "N/A") {
 
 #' @export
 clear_logs <- function() {
-    if (file.exists("_targets/objects/log.old")) {
-        file.remove("_targets/objects/log.old")
+    if (file.exists("_targets/objects/log.old.ndjson")) {
+        file.remove("_targets/objects/log.old.ndjson")
     }
-    if (file.exists("_targets/objects/log")) {
-        file.rename("_targets/objects/log", "_targets/objects/log.old")
+    if (file.exists("_targets/objects/log.ndjson")) {
+        file.rename("_targets/objects/log.ndjson", "_targets/objects/log.old.ndjson")
     }
 }

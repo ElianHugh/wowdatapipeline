@@ -21,7 +21,6 @@ tar_option_set(
 
 clear_logs()
 
-
 list(
     tar_target(
         client,
@@ -35,7 +34,7 @@ list(
     ladder_targets,
     tar_combine(
         master_player_list,
-        safely_reduce(ladder_targets, 1, 2),
+        safely_reduce(ladder_targets, 1L, 2L),
         use_names = FALSE,
         command = c(!!!.x)[!duplicated(c(!!!.x))]
     ),

@@ -18,7 +18,6 @@ tar_option_set(
     garbage_collection = TRUE
 )
 
-
 #' @export
 capstone_targets <- list(
     tar_target(
@@ -43,7 +42,7 @@ season_targets <- list(
         pipeline_season_data(client),
         cue = tar_cue(
             mode = "always"
-    )
+        )
     )
 )
 
@@ -60,7 +59,7 @@ ladder_targets <- list(
         tar_age(
             data,
             pipeline_leaderboard_data(input_season, bracket, client),
-            age = as.difftime(1, units = "days"),
+            age = as.difftime(1L, units = "days"),
             format = tar_json,
             cue = tar_cue(
                 file = FALSE,

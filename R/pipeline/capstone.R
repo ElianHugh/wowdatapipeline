@@ -1,4 +1,7 @@
-box::use(stats[na.omit])
+box::use(
+    stats[na.omit],
+    stringr[str_extract]
+)
 
 box::use(
     R / logic[...],
@@ -14,12 +17,12 @@ pipeline_talent_tree_ids <- function(client) {
             tryCatch(
                 expr = {
                     list(
-                        tree_id = safely_reduce(x, "tree_id", 1),
-                        spec_id = spec_to_id(safely_reduce(x, "spec", 1)),
-                        spec = safely_reduce(x, "spec", 1)
+                        tree_id = safely_reduce(x, "tree_id", 1L),
+                        spec_id = spec_to_id(safely_reduce(x, "spec", 1L)),
+                        spec = safely_reduce(x, "spec", 1L)
                     )
                 }, error = function(e) {
-                    log_error(e)
+                    log_error(e, context = "Pipeline talent tree ids")
                     NULL
                 }
             )
@@ -45,7 +48,7 @@ pipeline_talent_trees <- function(talent_tree_ids, client) {
                     )
                 },
                 error = function(e) {
-                    log_error(e)
+                    log_error(e, context = "Pipeline talent trees")
                     NULL
                 }
             )
@@ -58,7 +61,7 @@ pipeline_capstone <- function(talent_trees) {
     get_maximal_row <- function(lst) {
         possible_rows <- unlist(lapply(lst, function(talent) {
             row <- talent[["row"]]
-            if (!is.null(row) && is.numeric(row)) {
+            if (!is.null(row) && is.numeric(row) && row > -Inf) {
                 return(row)
             } else {
                 return(-Inf)
@@ -66,6 +69,7 @@ pipeline_capstone <- function(talent_trees) {
         }))
         max(possible_rows, na.rm = TRUE)
     }
+
     filter_by_row <- function(lst, max_row) {
         Filter(function(talent) talent[["row"]] >= max_row, lst)
     }
@@ -96,7 +100,7 @@ get_talent_data <- function(tree_id, spec_id, client) {
                     spell_id = safely_reduce(
                         item,
                         "ranks",
-                        1,
+                        1L,
                         "tooltip",
                         "spell_tooltip",
                         "spell",
@@ -105,7 +109,7 @@ get_talent_data <- function(tree_id, spec_id, client) {
                     talent_id = safely_reduce(
                         item,
                         "ranks",
-                        1,
+                        1L,
                         "tooltip",
                         "talent",
                         "id"
@@ -116,6 +120,7 @@ get_talent_data <- function(tree_id, spec_id, client) {
     }
 
     resp <- safe_request(talent_tree_data_request(tree_id, spec_id, client))
+
     x <- safely_reduce(
         resp,
         "class_talent_nodes"
@@ -132,7 +137,6 @@ get_talent_data <- function(tree_id, spec_id, client) {
 }
 
 get_talent_tree_ids <- function(...) {
-    box::use(stringr[str_extract])
     resp <- safe_request(talent_tree_request(...))
     x <- safely_reduce(resp, "spec_talent_trees")
     lapply(
@@ -140,10 +144,10 @@ get_talent_tree_ids <- function(...) {
         function(tree) {
             list(
                 tree_id = str_extract(
-                    safely_reduce(tree, "key", "href", 1),
+                    safely_reduce(tree, "key", "href", 1L),
                     pattern = "(?<=(talent-tree\\/))[0-9]*(?=\\/)"
                 ),
-                spec = safely_reduce(tree, "name", 1)
+                spec = safely_reduce(tree, "name", 1L)
             )
         }
     )

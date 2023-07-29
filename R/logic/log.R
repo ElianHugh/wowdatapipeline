@@ -20,6 +20,6 @@ clear_logs <- function() {
         file.remove("_targets/objects/log.old")
     }
     if (file.exists("_targets/objects/log")) {
-        file.rename("_targets/objects/log.old")
+        file.rename("_targets/objects/log", "_targets/objects/log.old")
     }
 }

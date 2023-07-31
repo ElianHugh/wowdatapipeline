@@ -32,7 +32,7 @@ pipeline_leaderboard_data <- function(season, bracket, client) {
     resp <- safe_request(pvp_leaderboard_request(season, bracket, client))
     entries <- safely_reduce(resp, "entries")
     lapply(
-        entries[1L:170L],
+        entries[1L:120L],
         function(x) {
             char <- safely_reduce(x, "character")
             list(

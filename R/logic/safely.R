@@ -1,9 +1,9 @@
-box::use(./log[log_error])
+box::use(. / log[log_error])
 
 #' @export
 safely_reduce <- function(init, ...) {
     tryCatch(
-        {
+        expr = {
             Reduce(`[[`, x = list(...), init = init)
         },
         error = function(e) {
@@ -18,7 +18,7 @@ safely_reduce <- function(init, ...) {
 safe_request <- function(req_call) {
     box::use(httr2[...])
     tryCatch(
-        {
+        expr = {
             req <- req_perform(req_call)
             if (resp_is_error(req)) {
                 NULL

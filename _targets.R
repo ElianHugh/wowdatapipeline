@@ -10,6 +10,7 @@ box::use(
 
 box::use(
     R / logic[...],
+    R / api[...],
     R / pipeline[...]
 )
 

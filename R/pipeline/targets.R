@@ -5,11 +5,9 @@ box::use(
 )
 
 box::use(
+    R / logic[...],
     . / ladder[...],
-    . / capstone[...],
-    . / formats[tar_json],
-    . / utils[...],
-    . / helpers[...]
+    . / capstone[...]
 )
 
 tar_option_set(
@@ -50,10 +48,7 @@ season_targets <- list(
 ladder_targets <- list(
     tar_map(
         values = tibble(
-            bracket = c(
-                "2v2",
-                "3v3"
-            )
+            bracket = c("2v2", "3v3")
         ),
         tar_age(
             data,

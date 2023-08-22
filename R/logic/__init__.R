@@ -1,2 +1,7 @@
 #' @export
-box::use(. / helpers[...], . / api[...], ./safely[...], ./log[...])
+box::use(
+    . / helpers[...],
+    . / safely[...],
+    . / log[...],
+    . / formats[...]
+)

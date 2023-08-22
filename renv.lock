@@ -776,6 +776,18 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "0d0056cc5383fbc240ccd0cb584bf436"
+    },
+    "yyjsonr": {
+      "Package": "yyjsonr",
+      "Version": "0.1.2",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "coolbutuseless",
+      "RemoteRepo": "yyjsonr",
+      "RemoteRef": "main",
+      "RemoteSha": "a475a1a593e57244ac5bce1101041c63f39c2cc6",
+      "Hash": "6836a8383fe5712f31eeb73cc4940bf1"
     }
   }
 }

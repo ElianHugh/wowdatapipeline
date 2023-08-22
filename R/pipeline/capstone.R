@@ -5,8 +5,7 @@ box::use(
 
 box::use(
     R / logic[...],
-    . / utils[...],
-    . / helpers[...]
+    R / api[...]
 )
 
 #' @export
@@ -120,15 +119,8 @@ get_talent_data <- function(tree_id, spec_id, client) {
     }
 
     resp <- safe_request(talent_tree_data_request(tree_id, spec_id, client))
-
-    x <- safely_reduce(
-        resp,
-        "class_talent_nodes"
-    )
-    y <- safely_reduce(
-        resp,
-        "spec_talent_nodes"
-    )
+    x <- safely_reduce(resp, "class_talent_nodes")
+    y <- safely_reduce(resp, "spec_talent_nodes")
 
     list(
         class = get_node_ids(x),

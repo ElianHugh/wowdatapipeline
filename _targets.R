@@ -1,11 +1,8 @@
 options(box.path = getwd())
 
 box::use(
-    targets[tar_target, tar_option_set, tar_cue],
-    tarchetypes[tar_age, tar_map, tar_combine],
-    tibble[tibble],
-    jsonlite[write_json],
-    httr2[multi_req_perform, resp_is_error, resp_body_json],
+    targets[tar_option_set],
+    tarchetypes[tar_combine],
     dplyr[bind_rows]
 )
 

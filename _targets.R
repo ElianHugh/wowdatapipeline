@@ -23,14 +23,9 @@ tar_option_set(
 
 clear_logs()
 
+client <- new_client()
+
 list(
-    tar_target(
-        client,
-        new_client(),
-        cue = tar_cue(
-            mode = "always"
-        )
-    ),
     # capstone_targets, ## todo
     season_targets,
     ladder_targets,

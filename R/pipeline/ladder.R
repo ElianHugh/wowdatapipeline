@@ -100,7 +100,11 @@ pipeline_get_request_body <- function(performed_requests) {
 }
 
 #' @export
-pipeline_extract_data <- function(resp, type) {
+pipeline_extract_data <- function(batched_data, type, client) {
+    resp <- pipeline_construct_requests(batched_data, type, client) |>
+        pipeline_perform_requests() |>
+        pipeline_get_request_body()
+
     switch(type,
         "profile" = pipeline_profile_data,
         "media" = pipeline_media_data,

@@ -84,20 +84,8 @@ profile_targets <- list(
             )
         ),
         tar_target(
-            input_batched_requests,
-            pipeline_construct_requests(input_batched_ladder_data, type, client)
-        ),
-        tar_target(
-            input_performed_requests,
-            pipeline_perform_requests(input_batched_requests)
-        ),
-        tar_target(
-            input_responses,
-            pipeline_get_request_body(input_performed_requests)
-        ),
-        tar_target(
             data,
-            pipeline_extract_data(input_responses, type),
+            pipeline_extract_data(input_batched_ladder_data, type, client),
             format = tar_json,
             cue = tar_cue(
                 file = FALSE,

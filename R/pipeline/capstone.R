@@ -16,9 +16,9 @@ pipeline_talent_tree_ids <- function(client) {
             tryCatch(
                 expr = {
                     list(
-                        tree_id = safely_reduce(x, "tree_id", 1L),
-                        spec_id = spec_to_id(safely_reduce(x, "spec", 1L)),
-                        spec = safely_reduce(x, "spec", 1L)
+                        tree_id = x$tree_id,
+                        spec_id = spec_to_id(x$spec),
+                        spec = x$spec
                     )
                 }, error = function(e) {
                     log_error(e, context = "Pipeline talent tree ids")
@@ -131,16 +131,19 @@ get_talent_data <- function(tree_id, spec_id, client) {
 get_talent_tree_ids <- function(...) {
     resp <- safe_request(talent_tree_request(...))
     x <- safely_reduce(resp, "spec_talent_trees")
-    lapply(
-        x,
-        function(tree) {
+
+    mapply(
+        \(key, name) {
             list(
                 tree_id = str_extract(
-                    safely_reduce(tree, "key", "href", 1L),
+                    key,
                     pattern = "(?<=(talent-tree\\/))[0-9]*(?=\\/)"
                 ),
-                spec = safely_reduce(tree, "name", 1L)
+                spec = name
             )
-        }
+        },
+        key = x$key,
+        name = x$name,
+        SIMPLIFY = FALSE
     )
 }

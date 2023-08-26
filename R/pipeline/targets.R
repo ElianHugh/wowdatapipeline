@@ -71,7 +71,7 @@ ladder_targets <- list(
 profile_targets <- list(
     tar_target(
         input_batched_ladder_data,
-        batch_list(master_player_list, group_size = 50L)
+        batch_df(master_player_list, group_size = 50L)
     ),
     tar_map(
         values = tibble(

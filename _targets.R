@@ -5,7 +5,8 @@ box::use(
     tarchetypes[tar_age, tar_map, tar_combine],
     tibble[tibble],
     jsonlite[write_json],
-    httr2[multi_req_perform, resp_is_error, resp_body_json]
+    httr2[multi_req_perform, resp_is_error, resp_body_json],
+    dplyr[bind_rows]
 )
 
 box::use(
@@ -30,14 +31,13 @@ list(
             mode = "always"
         )
     ),
-    capstone_targets,
+    # capstone_targets, ## todo
     season_targets,
     ladder_targets,
     tar_combine(
         master_player_list,
         safely_reduce(ladder_targets, 1L, 2L),
-        use_names = FALSE,
-        command = c(!!!.x)[!duplicated(c(!!!.x))]
+        command = bind_rows(!!!.x)
     ),
     profile_targets
 )

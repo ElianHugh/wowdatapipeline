@@ -1,5 +1,7 @@
 box::use(
-    httr2[multi_req_perform, resp_body_json]
+    httr2[multi_req_perform, resp_body_json],
+    dplyr[...],
+    tidyr[...]
 )
 
 box::use(
@@ -10,13 +12,9 @@ box::use(
 
 #' @export
 pipeline_season_data <- function(client) {
-    resp <- safe_request(pvp_season_request(client))
-    res <- safely_reduce(
-        resp,
-        "current_season",
-        "id",
-        1L
-    )
+    res <- pvp_season_request(client) |>
+        safe_request() |>
+        safely_reduce("current_season", "id", 1L)
     if (is.null(res)) {
         err <- list(
             call = "pipeline_season_data",
@@ -29,37 +27,57 @@ pipeline_season_data <- function(client) {
 
 #' @export
 pipeline_leaderboard_data <- function(season, bracket, client) {
-    resp <- safe_request(pvp_leaderboard_request(season, bracket, client))
-    entries <- safely_reduce(resp, "entries")
-    lapply(
-        entries[1L:100L],
-        extract_leaderboard_data
-    )
+    entries <- pvp_leaderboard_request(season, bracket, client) |>
+        safe_request() |>
+        safely_reduce("entries") |>
+        hoist(faction, "type") |>
+        unnest_wider(season_match_statistics) |>
+        unnest_wider(character) |>
+        hoist(realm, "slug") |>
+        select(
+            id,
+            name,
+            realm = slug,
+            faction = type,
+            rank,
+            rating,
+            played,
+            won,
+            lost
+        )
+    entries[1L:50L, ] # todo, remove at earliest convenience
 }
 
 #' @export
 pipeline_player_list <- function(ladder_data) {
-    lapply(ladder_data, extract_minimal_player_data)
+    ladder_data |>
+        select(id, name, realm) |>
+        filter(!is.null(id))
 }
 
 #' @export
 pipeline_construct_requests <- function(batched_data, type, client) {
-    lapply(seq_len(length(batched_data)), function(i) {
-        row <- batched_data[[i]]
-        lapply(row, function(x) {
-            name <- tolower(x$name)
-            realm <- tolower(x$realm)
-            if (!is.null(name) && !is.null(realm)) {
-                request_fn <- switch(type,
-                    profile = character_profile_request,
-                    media = character_media_request,
-                    equipment = character_equipment_request,
-                    statistics = character_statistics_request,
-                    talents = character_talents_request
-                )
-                request_fn(realm, name, client)
-            }
-        })
+    lapply(batched_data, function(x) {
+        mapply(
+            \(id, realm, name) {
+                name <- tolower(name)
+                realm <- tolower(realm)
+                if (!is.null(name) && !is.null(realm)) {
+                    request_fn <- switch(type,
+                        profile = character_profile_request,
+                        media = character_media_request,
+                        equipment = character_equipment_request,
+                        statistics = character_statistics_request,
+                        talents = character_talents_request
+                    )
+                    request_fn(realm, name, client)
+                }
+            },
+            id = x$id,
+            realm = x$realm,
+            name = x$name,
+            SIMPLIFY = FALSE
+        )
     })
 }
 
@@ -126,17 +144,6 @@ extract_leaderboard_data <- function(x) {
         won = safely_reduce(x, "season_match_statistics", "won", 1L),
         lost = safely_reduce(x, "season_match_statistics", "lost", 1L)
     )
-}
-
-extract_minimal_player_data <- function(x) {
-    id <- safely_reduce(x, "id", 1L)
-    if (!is.null(id)) {
-        list(
-            id = id,
-            name = safely_reduce(x, "name", 1L),
-            realm = safely_reduce(x, "realm", 1L)
-        )
-    }
 }
 
 extract_profile_data <- function(resp) {

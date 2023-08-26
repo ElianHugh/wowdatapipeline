@@ -1,4 +1,4 @@
-box::use(. / log[log_error])
+box::use(. / log[log_error], ./helpers[resp_body_yyjson])
 
 #' @export
 safely_reduce <- function(init, ...) {
@@ -23,7 +23,7 @@ safe_request <- function(req_call) {
             if (resp_is_error(req)) {
                 NULL
             } else {
-                resp_body_json(req)
+                resp_body_yyjson(req)
             }
         },
         error = function(e) {

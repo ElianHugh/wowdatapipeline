@@ -1,5 +1,5 @@
 box::use(
-    httr2[req_perform, req_retry, resp_is_error, resp_body_json],
+    httr2[req_perform, req_retry, resp_is_error, resp_body_string],
     utils[URLencode],
     yyjsonr[...]
 )
@@ -19,13 +19,18 @@ encode_string <- function(x) {
 }
 
 #' @export
-resp_body_yyjson <- function(x, ...) {
+resp_body_yyjson <- function(x) {
     if (!inherits(x, "httr2_response")) {
         stop("`resp` must be an HTTP response object")
     }
 
     text <- resp_body_string(x, "UTF-8")
-    from_json_str(str = text, ...)
+    from_json_str(
+        str = text,
+        opts = from_opts(
+            vectors_to_df = FALSE
+        )
+    )
 }
 
 #' @export
@@ -37,6 +42,14 @@ is_safe <- function(x) {
 batch_list <- function(lst, group_size = 50L) {
     structure(
         split(lst, ceiling(seq_along(lst) / group_size)),
+        names = NULL
+    )
+}
+
+#' @export
+batch_df <- function(df, group_size = 50L) {
+    structure(
+        split(df, ceiling(seq_len(nrow(df)) / group_size)),
         names = NULL
     )
 }

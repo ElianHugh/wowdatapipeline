@@ -667,7 +667,7 @@
     },
     "targets": {
       "Package": "targets",
-      "Version": "1.2.2.9000",
+      "Version": "1.2.2.9001",
       "Source": "Repository",
       "Repository": "https://ropensci.r-universe.dev",
       "Requirements": [
@@ -690,7 +690,7 @@
         "vctrs",
         "yaml"
       ],
-      "Hash": "50f8c65c0ef384addcaf94b3fdcb43cb"
+      "Hash": "cce6a3701d1ba53513ddabdf7da75265"
     },
     "tibble": {
       "Package": "tibble",

@@ -45,7 +45,7 @@ pipeline_leaderboard_data <- function(season, bracket, client) {
             won,
             lost
         )
-    entries
+    entries[1L:1000L, ]
 }
 
 #' @export

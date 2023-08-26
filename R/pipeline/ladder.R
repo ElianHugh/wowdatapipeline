@@ -45,7 +45,7 @@ pipeline_leaderboard_data <- function(season, bracket, client) {
             won,
             lost
         )
-    entries[1L:300L, ] # todo, remove at earliest convenience
+    entries
 }
 
 #' @export

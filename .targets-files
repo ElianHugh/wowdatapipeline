@@ -1,0 +1,17 @@
+.targets-files
+_targets/.gitignore
+_targets/meta/meta
+_targets/meta/process
+_targets/meta/progress
+_targets/objects/data_2v2
+_targets/objects/data_3v3
+_targets/objects/data_equipment
+_targets/objects/data_media
+_targets/objects/data_profile
+_targets/objects/data_statistics
+_targets/objects/data_talents
+_targets/objects/input_batched_ladder_data
+_targets/objects/input_player_list_2v2
+_targets/objects/input_player_list_3v3
+_targets/objects/input_season
+_targets/objects/master_player_list

@@ -8,7 +8,7 @@ safely_reduce <- function(init, ...) {
         },
         error = function(e) {
             log_error(e, context = "Error during reduce call")
-            list(NULL)
+            NULL
         }
     )
 }

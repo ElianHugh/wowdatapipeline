@@ -1,5 +1,5 @@
 box::use(
-    httr2[multi_req_perform, resp_body_json],
+    httr2[req_perform_parallel, resp_body_json],
     dplyr[...],
     tidyr[...]
 )
@@ -85,7 +85,7 @@ pipeline_construct_requests <- function(batched_data, type, client) {
 pipeline_perform_requests <- function(requests) {
     lapply(
         requests,
-        multi_req_perform
+        \(req) req_perform_parallel(req, on_error = "continue")
     )
 }
 
@@ -141,7 +141,8 @@ extract_leaderboard_data <- function(x) {
         id = safely_reduce(char, "id", 1L),
         name = safely_reduce(char, "name", 1L),
         realm = safely_reduce(char, "realm", "slug", 1L),
-        faction = safely_reduce(x, "faction", "type", 1L),
+        faction =safely_reduce(x, "faction", "type", 1L) |>
+            tolower(),
         rank = safely_reduce(x, "rank", 1L),
         rating = safely_reduce(x, "rating", 1L),
         played = safely_reduce(x, "season_match_statistics", "played", 1L),
@@ -156,8 +157,14 @@ extract_profile_data <- function(resp) {
         list(
             id      = id,
             name    = safely_reduce(resp, "name"),
-            gender  = safely_reduce(resp, "gender", "type"),
-            faction = safely_reduce(resp, "faction", "type"),
+            body_type  = switch(
+                safely_reduce(resp, "gender", "type"),
+                "MALE" = 0L,
+                "FEMALE" = 1L,
+                -1
+            ),
+            faction = safely_reduce(resp, "faction", "type") |>
+                tolower(),
             race    = safely_reduce(resp, "race", "id"),
             class   = safely_reduce(resp, "character_class", "id"),
             spec    = safely_reduce(resp, "active_spec", "id"),
@@ -188,7 +195,8 @@ extract_equipment_data <- function(resp) {
                 function(item) {
                     list(
                         id = safely_reduce(item, "item", "id", 1L),
-                        slot = safely_reduce(item, "slot", "type", 1L)
+                        slot = safely_reduce(item, "slot", "type", 1L) |>
+                            tolower()
                     )
                 }
             )
@@ -201,14 +209,14 @@ extract_statistics_data <- function(resp) {
     if (!is.null(id)) {
         list(
             id = id,
-            mastery = safely_reduce(resp, "mastery", "rating", 1L),
+            mastery = safely_reduce(resp, "mastery", "rating_normalized", 1L),
             versatility = safely_reduce(resp, "versatility", 1L),
-            melee_haste = safely_reduce(resp, "melee_haste", "rating", 1L),
-            ranged_haste = safely_reduce(resp, "ranged_haste", "rating", 1L),
-            spell_haste = safely_reduce(resp, "spell_haste", "rating", 1L),
-            melee_crit = safely_reduce(resp, "melee_crit", "rating", 1L),
-            ranged_crit = safely_reduce(resp, "ranged_crit", "rating", 1L),
-            spell_crit = safely_reduce(resp, "spell_crit", "rating", 1L)
+            melee_haste = safely_reduce(resp, "melee_haste", "rating_normalized", 1L),
+            ranged_haste = safely_reduce(resp, "ranged_haste", "rating_normalized", 1L),
+            spell_haste = safely_reduce(resp, "spell_haste", "rating_normalized", 1L),
+            melee_crit = safely_reduce(resp, "melee_crit", "rating_normalized", 1L),
+            ranged_crit = safely_reduce(resp, "ranged_crit", "rating_normalized", 1L),
+            spell_crit = safely_reduce(resp, "spell_crit", "rating_normalized", 1L)
         )
     }
 }
@@ -216,52 +224,103 @@ extract_statistics_data <- function(resp) {
 extract_talents_data <- function(resp) {
     specs <- safely_reduce(resp, "specializations")
     id <- safely_reduce(resp, "character", "id", 1L)
+    active_hero <- safely_reduce(resp, "active_hero_talent_tree", "id")
+
+    get_spell_id <- function(talent) {
+    safely_reduce(talent, c("tooltip", "spell_tooltip", "spell", "id")) %||%
+        safely_reduce(talent, c("tooltip", "talent", "id")) %||%
+        NA_integer_
+    }
+
+
     if (!is.null(id)) {
         list(
             id = id,
+            hero = active_hero,
             specializations = lapply(
                 specs,
                 function(spec) {
+                    # TODO, ignore the active, we need to find
+                    # the spec that matches the player's spec
+                    # according to the **ladder**
+                    active_loadout <- NULL
+                    loadouts <- safely_reduce(spec, "loadouts")
+
+                    if (!is.null(loadouts)) {
+                        active_idx <- which(vapply(
+                            loadouts,
+                            function(x) isTRUE(x$is_active),
+                            logical(1)
+                        ))
+                        if (length(active_idx) > 0) {
+                            active_loadout <- loadouts[[active_idx[1]]]
+                        }
+                    }
+
                     list(
-                        specialization = safely_reduce(spec, "specialization", "id"),
+                        loadout = safely_reduce(active_loadout, "talent_loadout_code"),
+                        specialization = safely_reduce(
+                            spec,
+                            "specialization",
+                            "id"
+                        ),
                         pvp_talents = lapply(
                             safely_reduce(spec, "pvp_talent_slots"),
                             function(slot) {
                                 list(
-                                    spell_id = safely_reduce(slot, "selected", "spell_tooltip", "spell", "id"),
-                                    name = safely_reduce(slot, "selected", "talent", "name")
-                                )
-                            }
-                        ),
-                        loadouts = lapply(
-                            safely_reduce(spec, "loadouts"),
-                            function(loadout) {
-                                list(
-                                    active = safely_reduce(loadout, "is_active"),
-                                    code = safely_reduce(loadout, "talent_loadout_code"),
-                                    class_talents = lapply(
-                                        safely_reduce(loadout, "selected_class_talents"),
-                                        function(talent) {
-                                            list(
-                                                spell_id = safely_reduce(talent, "tooltip", "spell_tooltip", "spell", "id"),
-                                                talent_id = safely_reduce(talent, "tooltip", "talent", "id"),
-                                                name = safely_reduce(talent, "tooltip", "talent", "name")
-                                            )
-                                        }
-                                    ),
-                                    spec_talents = lapply(
-                                        safely_reduce(loadout, "selected_spec_talents"),
-                                        function(talent) {
-                                            list(
-                                                spell_id = safely_reduce(talent, "tooltip", "spell_tooltip", "spell", "id"),
-                                                talent_id = safely_reduce(talent, "tooltip", "talent", "id"),
-                                                name = safely_reduce(talent, "tooltip", "talent", "name")
-                                            )
-                                        }
+                                    spell_id = safely_reduce(
+                                        slot,
+                                        "selected",
+                                        "spell_tooltip",
+                                        "spell",
+                                        "id"
                                     )
                                 )
                             }
+                        ),
+                        class_talents = vapply(
+                            safely_reduce(active_loadout, "selected_class_talents") %||% list(),
+                            get_spell_id,
+                            integer(1)
+                        ),
+
+                        spec_talents = vapply(
+                            safely_reduce(active_loadout, "selected_spec_talents") %||% list(),
+                            get_spell_id,
+                            integer(1)
                         )
+
+                        # loadouts = lapply(
+                        #     {
+                        #         loadouts <- safely_reduce(spec, "loadouts")
+                        #         active_loadout <- Filter(\(x) isTRUE(safely_reduce(x, "is_active")), loadouts)
+                        #         active_loadout <- active_loadout[[1]] %||% NULL
+                        #     },
+                        #     function(loadout) {
+                        #         list(
+                        #             active = safely_reduce(loadout, "is_active"),
+                        #             code = safely_reduce(loadout, "talent_loadout_code"),
+                        #             class_talents = lapply(
+                        #                 safely_reduce(loadout, "selected_class_talents"),
+                        #                 function(talent) {
+                        #                     list(
+                        #                         spell_id = safely_reduce(talent, "tooltip", "spell_tooltip", "spell", "id"),
+                        #                         talent_id = safely_reduce(talent, "tooltip", "talent", "id")
+                        #                     )
+                        #                 }
+                        #             ),
+                        #             spec_talents = lapply(
+                        #                 safely_reduce(loadout, "selected_spec_talents"),
+                        #                 function(talent) {
+                        #                     list(
+                        #                         spell_id = safely_reduce(talent, "tooltip", "spell_tooltip", "spell", "id"),
+                        #                         talent_id = safely_reduce(talent, "tooltip", "talent", "id")
+                        #                     )
+                        #                 }
+                        #             )
+                        #         )
+                        #     }
+                        # )
                     )
                 }
             )
@@ -270,3 +329,7 @@ extract_talents_data <- function(resp) {
         NULL
     }
 }
+
+
+
+

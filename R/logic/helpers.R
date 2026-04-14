@@ -25,10 +25,10 @@ resp_body_yyjson <- function(x) {
     }
 
     text <- resp_body_string(x, "UTF-8")
-    from_json_str(
+    read_json_str(
         str = text,
-        opts = from_opts(
-            vectors_to_df = FALSE
+        opts = opts_read_json(
+            # arr_of_objs_to_df = FALSE
         )
     )
 }
@@ -105,6 +105,7 @@ spec_to_id <- function(spec_string) {
         # DH
         Havoc = 577L,
         Vengeance = 581L,
+        Devourer = 1480L,
         # Evoker
         Preservation = 1467L,
         Devastation = 1468L,

@@ -90,33 +90,109 @@ pipeline_capstone <- function(talent_trees) {
 
 
 get_talent_data <- function(tree_id, spec_id, client) {
-    get_node_ids <- function(lst) {
-        lapply(
-            lst,
-            function(item) {
-                list(
-                    row = safely_reduce(item, "display_row"),
-                    spell_id = safely_reduce(
-                        item,
-                        "ranks",
-                        1L,
-                        "tooltip",
-                        "spell_tooltip",
-                        "spell",
-                        "id"
-                    ),
-                    talent_id = safely_reduce(
-                        item,
-                        "ranks",
-                        1L,
-                        "tooltip",
-                        "talent",
-                        "id"
+    # get_node_ids <- function(df) {
+#     box::use(
+#         dplyr[...],
+#         purrr[map_int]
+#     )
+
+#     df |>
+#         transmute(
+#             spell_id = purrr::map_int(
+#                 ranks,
+#                 \(r) {
+#                     purrr::pluck(
+#                         r,
+#                         "tooltip",
+#                         1,
+#                         "spell_tooltip",
+#                         "spell",
+#                         "id",
+#                         .default = NA_integer_
+#                     )
+#                 }
+#             ),
+#             y = display_row,
+#             x = display_col,
+#             spec = spec_id
+#         ) |>
+#         filter(!is.na(spell_id))
+
+#     # lapply(
+#     #     lst,
+#     #     function(item) {
+#     #         list(
+#     #             row = safely_reduce(item, "display_row"),
+#     #             spell_id = safely_reduce(
+#     #                 item,
+#     #                 "ranks",
+#     #                 1L,
+#     #                 "tooltip",
+#     #                 "spell_tooltip",
+#     #                 "spell",
+#     #                 "id"
+#     #             ),
+#     #             talent_id = safely_reduce(
+#     #                 item,
+#     #                 "ranks",
+#     #                 1L,
+#     #                 "tooltip",
+#     #                 "talent",
+#     #                 "id"
+#     #             )
+#     #         )
+#     #     }
+#     # )
+# }
+get_node_ids <- function(df) {
+    box::use(
+        dplyr[...],
+        purrr[...],
+        tidyr[unnest]
+    )
+
+    df |>
+        mutate(
+            spell_id = map(ranks, \(r) {
+
+                if ("choice_of_tooltips" %in% names(r)) {
+                    ch <- r$choice_of_tooltips[[1]]
+
+                    ids <- map_int(
+                        ch$spell_tooltip,
+                        \(st) pluck(st, "spell", "id", .default = NA_integer_)
                     )
-                )
-            }
+
+                    return(ids[!is.na(ids)])
+                }
+
+
+                if ("tooltip" %in% names(r)) {
+                    ids <- map_int(
+                        r$tooltip,
+                        \(tt) {
+                            pluck(
+                                tt,
+                                "spell_tooltip",
+                                "spell",
+                                "id",
+                                .default = NA_integer_
+                            )
+                        }
+                    )
+                    return(ids[!is.na(ids)])
+                }
+                integer()
+            })
+        ) |>
+        unnest(spell_id) |>
+        transmute(
+            spell_id = spell_id,
+            y = display_row,
+            x = display_col,
+            spec = spec_id
         )
-    }
+}
 
     resp <- safe_request(talent_tree_data_request(tree_id, spec_id, client))
     x <- safely_reduce(resp, "class_talent_nodes")
@@ -131,14 +207,14 @@ get_talent_data <- function(tree_id, spec_id, client) {
 get_talent_tree_ids <- function(...) {
     resp <- safe_request(talent_tree_request(...))
     x <- safely_reduce(resp, "spec_talent_trees")
+    pat <- "(?<=(talent-tree\\/))[0-9]*(?=\\/)"
 
     mapply(
         \(key, name) {
             list(
-                tree_id = str_extract(
-                    key,
-                    pattern = "(?<=(talent-tree\\/))[0-9]*(?=\\/)"
-                ),
+                tree_id = str_extract(key, pattern = pat) |>
+                    unname() |>
+                    as.numeric(),
                 spec = name
             )
         },

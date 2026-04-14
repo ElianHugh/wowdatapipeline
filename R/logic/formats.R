@@ -31,12 +31,12 @@ box::use(
 #' @export
 tar_json <- tar_format(
     read = function(path) {
-        box::use(yyjsonr[from_json_file])
-        from_json_file(path)
+        box::use(yyjsonr[read_json_file])
+        read_json_file(path)
     },
     write = function(object, path) {
-        box::use(yyjsonr[to_json_file])
-        to_json_file(
+        box::use(yyjsonr[write_json_file])
+        write_json_file(
             object,
             path,
             auto_unbox = TRUE

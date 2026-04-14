@@ -180,7 +180,8 @@ db_targets <- list(
             equipment_tbl,
             statistics_tbl,
             talents_tbl,
-            "players.duckdb"
-        )
+            "_targets/user/players.duckdb"
+        ),
+        format = "file"
     )
 )

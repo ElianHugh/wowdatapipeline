@@ -156,7 +156,10 @@ write_db_tables <- function(
     talents,
     path
 ) {
-    con <- DBI::dbConnect(duckdb::duckdb(), dbdir = path)
+    tmp_path <- paste0(path, ".next")
+    if (file.exists(tmp_path)) file.remove(tmp_path)
+
+    con <- DBI::dbConnect(duckdb::duckdb(), dbdir = tmp_path)
     on.exit(DBI::dbDisconnect(con, shutdown = TRUE), add = TRUE)
 
     DBI::dbWriteTable(con, "bracket_2v2", twos, overwrite = TRUE)
@@ -165,7 +168,7 @@ write_db_tables <- function(
     DBI::dbWriteTable(con, "player_equipment", equipment, overwrite = TRUE)
     DBI::dbWriteTable(con, "player_statistics", statistics, overwrite = TRUE)
     DBI::dbWriteTable(con, "player_talents", talents, overwrite = TRUE)
-
+    file.rename(tmp_path, path)
     normalizePath(path, mustWork = FALSE)
 }
 

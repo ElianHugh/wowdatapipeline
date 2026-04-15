@@ -8,7 +8,9 @@ log_error <- function(e, context = "N/A") {
         ~Time, ~Call, ~Message, ~Context,
         Sys.time(), deparse(e[["call"]]), e[["message"]], context
     )
-    con <- file("_targets/objects/log.ndjson", open = "a+")
+    path <- "_targets/objects/log.ndjson"
+    dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
+    con <- file(path, open = "a+")
     stream_out(msg, con, verbose = FALSE)
     close(con)
     invisible(NULL)

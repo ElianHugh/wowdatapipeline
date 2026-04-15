@@ -17,7 +17,7 @@ pipeline_talent_tree_ids <- function(client) {
                 expr = {
                     list(
                         tree_id = x$tree_id,
-                        spec_id = spec_to_id(x$spec),
+                        spec_id = x$spec_id,
                         spec = x$spec
                     )
                 }, error = function(e) {
@@ -207,12 +207,16 @@ get_node_ids <- function(df) {
 get_talent_tree_ids <- function(...) {
     resp <- safe_request(talent_tree_request(...))
     x <- safely_reduce(resp, "spec_talent_trees")
-    pat <- "(?<=(talent-tree\\/))[0-9]*(?=\\/)"
+    talent_pat <- "(?<=(talent-tree\\/))[0-9]*(?=\\/)"
+    spec_pat <- "(?<=playable-specialization\\/)[0-9]+"
 
     mapply(
-        \(key, name) {
+        \(key, name, id) {
             list(
-                tree_id = str_extract(key, pattern = pat) |>
+                tree_id = str_extract(key, pattern = talent_pat) |>
+                    unname() |>
+                    as.numeric(),
+                spec_id = str_extract(key, pattern = spec_pat) |>
                     unname() |>
                     as.numeric(),
                 spec = name
